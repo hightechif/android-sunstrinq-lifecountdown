@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.sunstrinq.lifecountdown.ui.composable.LifeCountdownHero
 import com.sunstrinq.lifecountdown.ui.composable.LifeCountdownItem
 import com.sunstrinq.lifecountdown.ui.theme.LifeCountdownTheme
 import com.sunstrinq.lifecountdown.utils.DeathUtils
@@ -21,9 +23,10 @@ import java.time.LocalDate
 @Composable
 fun LifeCountdownScreen(modifier: Modifier = Modifier) {
 
-    val birthDate = LocalDate.of(1997, 1, 12)
+    val birthDate = LocalDate.of(1998, 9, 14)
 
     val progress = DeathUtils.lifeProgress(birthDate)
+
     val daysLeft = DeathUtils.daysLeft(birthDate)
     val weeksLeft = DeathUtils.weeksLeft(birthDate)
     val monthsLeft = DeathUtils.monthsLeft(birthDate)
@@ -35,6 +38,14 @@ fun LifeCountdownScreen(modifier: Modifier = Modifier) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Text(
+            text = "LIFE REMAINING",
+            modifier = Modifier.fillMaxWidth(),
+            fontSize = 27.sp
+        )
+        // The Hero Header
+        LifeCountdownHero(birthDate = birthDate)
+
         Text(text = "Life Expectancy: ${DeathUtils.LIFE_EXPECTANCY_YEARS.toInt()} years old.")
         Row(
             modifier = Modifier

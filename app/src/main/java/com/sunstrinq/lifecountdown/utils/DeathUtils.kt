@@ -1,6 +1,9 @@
 package com.sunstrinq.lifecountdown.utils
 
+import com.sunstrinq.lifecountdown.ui.composable.TimeRemaining
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 object DeathUtils {
@@ -65,6 +68,31 @@ object DeathUtils {
                 daysLeft(birthDate, lifeExpectancyYears).toFloat() /
                         totalLifeDays(lifeExpectancyYears)
                 ).coerceIn(0f, 1f)
+    }
+
+    fun detailedRemainingTime(birthDate: LocalDate): TimeRemaining {
+        val deathDate = birthDate.plusYears(LIFE_EXPECTANCY_YEARS.toLong()).atStartOfDay()
+        val now = LocalDateTime.now()
+
+        val duration = Duration.between(now, deathDate)
+        val totalSeconds = duration.seconds
+
+        // Simple breakdown (Note: for exact calendar accuracy, use Period for Y/M/D)
+        val years = (totalSeconds / (365 * 24 * 3600)).toInt()
+        val remainingAfterYears = totalSeconds % (365 * 24 * 3600)
+
+        val months = (remainingAfterYears / (30 * 24 * 3600)).toInt()
+        val remainingAfterMonths = remainingAfterYears % (30 * 24 * 3600)
+
+        val days = (remainingAfterMonths / (24 * 3600)).toInt()
+        val remainingAfterDays = remainingAfterMonths % (24 * 3600)
+
+        val hours = (remainingAfterDays / 3600).toInt()
+        val minutes = (remainingAfterDays % 3600 / 60).toInt()
+        val seconds = (remainingAfterDays % 60).toInt()
+        val millis = duration.nano / 1_000_000
+
+        return TimeRemaining(years, months, days, hours, minutes, seconds, millis)
     }
 
 }
