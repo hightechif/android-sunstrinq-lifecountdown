@@ -1,15 +1,36 @@
 *.iml
 .gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
 .DS_Store
-/build
+**/build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+key.properties
+.kotlin/
+
+# User-specific configurations
+.idea/**
+
+# Crashlytics configuations
+com_crashlytics_export_strings.xml
+
+# Signing files
+.signing/
+
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# signature
+*.pem
+/app/production_transition/release/output-metadata.json
+/app/production/release/output-metadata.json
+/app/uat_transition/release/output-metadata.json
+/app/uat/release/output-metadata.json
+/app/development_transition/release/output-metadata.json
+/app/development/release/output-metadata.json
+/.kotlin/
+/.idea/
