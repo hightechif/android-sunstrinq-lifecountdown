@@ -1,62 +1,128 @@
 package com.sunstrinq.lifecountdown.ui.screen
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.sunstrinq.lifecountdown.ui.composable.LifeCountdownHero
-import com.sunstrinq.lifecountdown.ui.composable.LifeCountdownItem
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sunstrinq.lifecountdown.ui.composable.DateSelectionDialog
+import com.sunstrinq.lifecountdown.ui.composable.LifeExpectancyDialog
 import com.sunstrinq.lifecountdown.ui.theme.LifeCountdownTheme
-import com.sunstrinq.lifecountdown.utils.DeathUtils
-import com.sunstrinq.lifecountdown.utils.format
-import java.time.LocalDate
+import com.sunstrinq.lifecountdown.ui.viewmodel.LifeCountdownViewModel
 
 @Composable
-fun LifeCountdownScreen(modifier: Modifier = Modifier) {
+fun LifeCountdownScreen(
+    modifier: Modifier = Modifier,
+) {
+    val viewModel: LifeCountdownViewModel = viewModel(factory = LifeCountdownViewModel.Factory)
 
-    val birthDate = LocalDate.of(1998, 9, 14)
+    val userPreferences by viewModel.userPreferences.collectAsState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showExpectancyDialog by remember { mutableStateOf(false) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
 
-    val progress = DeathUtils.lifeProgress(birthDate)
-
-    val daysLeft = DeathUtils.daysLeft(birthDate)
-    val weeksLeft = DeathUtils.weeksLeft(birthDate)
-    val monthsLeft = DeathUtils.monthsLeft(birthDate)
-    val yearsLeft = DeathUtils.yearsLeft(birthDate)
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(
-            text = "LIFE REMAINING",
-            modifier = Modifier.fillMaxWidth(),
-            fontSize = 27.sp
+    if (showDatePicker) {
+        DateSelectionDialog(
+            onDateSelected = { date ->
+                viewModel.updateBirthDate(date)
+            },
+            onDismiss = { }
         )
-        // The Hero Header
-        LifeCountdownHero(birthDate = birthDate)
+    }
 
-        Text(text = "Life Expectancy: ${DeathUtils.LIFE_EXPECTANCY_YEARS.toInt()} years old.")
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            LifeCountdownItem(progress, "${daysLeft.toDouble().format()} \nDays Left")
-            LifeCountdownItem(progress, "${weeksLeft.toDouble().format()} \nWeeks Left")
-            LifeCountdownItem(progress, "${monthsLeft.toDouble().format()} \nMonths Left")
-            LifeCountdownItem(progress, "${yearsLeft.toDouble().format()} \nYears Left")
+    if (showExpectancyDialog) {
+        LifeExpectancyDialog(
+            initialValue = userPreferences.lifeExpectancy,
+            onConfirm = { years ->
+                viewModel.updateLifeExpectancy(years)
+            },
+            onDismiss = { }
+        )
+    }
+
+    if (showSettingsSheet) {
+        SettingsBottomSheet(
+            onDismiss = { },
+            onEditDate = { },
+            onEditExpectancy = { }
+        )
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        if (userPreferences.birthDate == null) {
+            // Welcome / Setup Screen
+            SetupScreen(onSetupClick = { })
+        } else {
+            // Dashboard
+            DashboardScreen(
+                birthDate = userPreferences.birthDate!!,
+                lifeExpectancy = userPreferences.lifeExpectancy,
+                onSettingsClick = { }
+            )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsBottomSheet(
+    onDismiss: () -> Unit,
+    onEditDate: () -> Unit,
+    onEditExpectancy: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
+        ) {
+            Text(
+                "Settings",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+            SettingsItem(
+                title = "Edit Date of Birth",
+                onClick = onEditDate
+            )
+            SettingsItem(
+                title = "Edit Life Expectancy",
+                onClick = onEditExpectancy
+            )
+        }
+    }
+}
+
+@Composable
+fun SettingsItem(title: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp)
+    ) {
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

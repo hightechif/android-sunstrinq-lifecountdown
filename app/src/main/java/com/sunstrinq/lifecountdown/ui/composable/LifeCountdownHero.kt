@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sunstrinq.lifecountdown.utils.DeathUtils
 import java.time.LocalDate
+import java.util.Locale
 
 data class TimeRemaining(
     val years: Int,
@@ -41,23 +42,27 @@ data class TimeRemaining(
     val millis: Int
 )
 
+
 @Composable
 fun LifeCountdownHero(
     birthDate: LocalDate,
+    lifeExpectancyYears: Int,
     modifier: Modifier = Modifier
 ) {
     // State for the ticking numbers
-    var timeLeft by remember { mutableStateOf(DeathUtils.detailedRemainingTime(birthDate)) }
+    var timeLeft by remember(birthDate, lifeExpectancyYears) {
+        mutableStateOf(DeathUtils.detailedRemainingTime(birthDate, lifeExpectancyYears))
+    }
 
     // Update the timer every 10ms for the "live" feeling
-    LaunchedEffect(Unit) {
+    LaunchedEffect(birthDate, lifeExpectancyYears) {
         while (true) {
-            timeLeft = DeathUtils.detailedRemainingTime(birthDate)
+            timeLeft = DeathUtils.detailedRemainingTime(birthDate, lifeExpectancyYears)
             withFrameMillis { it } // Sync with display refresh rate
         }
     }
 
-    val progress = DeathUtils.lifeProgress(birthDate)
+    val progress = DeathUtils.lifeProgress(birthDate, lifeExpectancyYears)
 
     Column(
         modifier = modifier
@@ -70,6 +75,7 @@ fun LifeCountdownHero(
             modifier = Modifier.size(280.dp)
         ) {
             // 1. Progress Ring (Donut Chart)
+            val primaryColor = MaterialTheme.colorScheme.primary
             Canvas(modifier = Modifier.size(240.dp)) {
                 val strokeWidth = 20.dp.toPx()
                 // Background Circle (Life Lived)
@@ -79,7 +85,7 @@ fun LifeCountdownHero(
                 )
                 // Foreground Arc (Life Remaining)
                 drawArc(
-                    color = Color(0xFF00BCD4), // Cyan/Teal
+                    color = primaryColor, // Theme Primary captured outside
                     startAngle = -90f,
                     sweepAngle = 360f * progress,
                     useCenter = false,
@@ -94,7 +100,8 @@ fun LifeCountdownHero(
                     style = MaterialTheme.typography.displayLarge.copy(
                         fontWeight = FontWeight.Black,
                         fontSize = 72.sp
-                    )
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     text = "YEARS REMAINING",
@@ -107,7 +114,8 @@ fun LifeCountdownHero(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "${timeLeft.months}M ${timeLeft.days}D",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -115,20 +123,26 @@ fun LifeCountdownHero(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "${timeLeft.hours}h ${timeLeft.minutes}m ",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = String.format("%02d.%03d", timeLeft.seconds, timeLeft.millis),
+                        text = String.format(
+                            Locale.getDefault(),
+                            "%02d.%03d",
+                            timeLeft.seconds,
+                            timeLeft.millis
+                        ),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Bold
                         ),
-                        color = Color(0xFF00E5FF) // High contrast Cyan
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = "s",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF00E5FF)
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -140,5 +154,5 @@ fun LifeCountdownHero(
 @Composable
 fun LifeCountdownHeroPreview() {
     val birthDate = LocalDate.of(1998, 9, 14)
-    LifeCountdownHero(birthDate = birthDate)
+    LifeCountdownHero(birthDate = birthDate, lifeExpectancyYears = 80)
 }
