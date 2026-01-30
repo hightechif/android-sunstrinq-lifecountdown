@@ -21,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import com.sunstrinq.lifecountdown.ui.composable.DateSelectionDialog
 import com.sunstrinq.lifecountdown.ui.composable.LifeExpectancyDialog
 import com.sunstrinq.lifecountdown.ui.theme.LifeCountdownTheme
@@ -31,7 +31,7 @@ import com.sunstrinq.lifecountdown.ui.viewmodel.LifeCountdownViewModel
 fun LifeCountdownScreen(
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: LifeCountdownViewModel = viewModel(factory = LifeCountdownViewModel.Factory)
+    val viewModel: LifeCountdownViewModel = koinViewModel()
 
     val userPreferences by viewModel.userPreferences.collectAsState()
     var showDatePicker by remember { mutableStateOf(false) }

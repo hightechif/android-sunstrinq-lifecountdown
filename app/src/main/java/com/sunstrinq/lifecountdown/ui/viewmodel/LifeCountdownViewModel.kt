@@ -1,12 +1,7 @@
 package com.sunstrinq.lifecountdown.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.sunstrinq.lifecountdown.MainApp
 import com.sunstrinq.lifecountdown.data.UserPreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,12 +33,5 @@ class LifeCountdownViewModel(
         }
     }
 
-    companion object Companion {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as MainApp)
-                LifeCountdownViewModel(application.userPreferencesRepository)
-            }
-        }
-    }
+
 }

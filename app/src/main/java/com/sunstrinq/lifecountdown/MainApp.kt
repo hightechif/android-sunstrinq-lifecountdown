@@ -1,13 +1,17 @@
 package com.sunstrinq.lifecountdown
 
 import android.app.Application
-import com.sunstrinq.lifecountdown.data.UserPreferencesRepository
+import com.sunstrinq.lifecountdown.di.appModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 class MainApp : Application() {
-    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     override fun onCreate() {
         super.onCreate()
-        userPreferencesRepository = UserPreferencesRepository(this)
+        startKoin {
+            androidContext(this@MainApp)
+            modules(appModule)
+        }
     }
 }
